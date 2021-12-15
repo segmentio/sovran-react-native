@@ -1,8 +1,26 @@
 @objc(Sovran)
-class Sovran: NSObject {
+public class Sovran: RCTEventEmitter {
 
-    @objc(multiply:withB:withResolver:withRejecter:)
-    func multiply(a: Float, b: Float, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-        resolve(a*b)
+    @objc public static var emitter: RCTEventEmitter!
+
+    @objc override init() {
+        super.init()
+        Sovran.emitter = self
+    }
+
+    @objc override public static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
+
+    @objc open override func supportedEvents() -> [String] {
+        ["onStoreAction"]
+    }
+
+    @objc public static func dispatch(action: String, payload: Any!) -> Void {
+        self.emitter.sendEvent(withName: "onStoreAction", body: [
+            "type": action,
+            "payload": payload
+        ]);
     }
 }
+
