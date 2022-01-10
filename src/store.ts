@@ -1,4 +1,4 @@
-import { MMKV } from 'react-native-mmkv'
+import { MMKV } from 'react-native-mmkv';
 
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
@@ -69,21 +69,21 @@ export interface Store<T> {
  * @returns {Store<T>} object
  */
 
-export const createStore =  <T extends {}>(initialState: T, storeId: string): Store<T> => {
+export interface StoreConfig {
+  //id can't be optional
+  storeId: string;
+  persist?: boolean;
+}
+
+export const createStore =  <T extends {}>(initialState: T, config: StoreConfig): Store<T> => {
   let state = initialState;
+  const persistedStorage = createPersistedStorage(config);
 
-  //creates new storage instance 
-  const persistedStorage = new MMKV({
-    id: storeId
-  }); 
-
-  //deserailize the JSON string from MMKV 
+  //check to see if there is anything to replace initialState with
   const persistedStateJSON = persistedStorage.getString('state');
-
-  // check to see if anything is there, if so update initialState 
-  if (persistedStateJSON != null) {
-    let persistedState = JSON.parse(persistedStateJSON);
-    state  = {...persistedState}
+  
+  if(persistedStateJSON?.length) {
+   state = checkState(persistedStorage);
   }
 
   const observable = createObservable<T>();
@@ -112,21 +112,30 @@ export const createStore =  <T extends {}>(initialState: T, storeId: string): St
   return { subscribe, dispatch, getState };
 };
 
-//since it's serialized, I'm not sure of a better way to check 
-//and replace state in storage other than comparing them, completely 
-//deleting the storage obj and rpelacing it with a new state. 
-const updatePersistor = (state: {}, store: MMKV) => {
-  const jsonState = store.getString('state');
-  let persistedState;
-
-  if( jsonState != null) {
-    persistedState = JSON.parse(jsonState)
-  }
-
-  if (persistedState && persistedState != state) {
-    let newState = {...persistedState, ...state};
-     store.clearAll();
-     store.set('state',  JSON.stringify(newState));
-  }
+const createPersistedStorage = (config: StoreConfig): MMKV => {
+  const newStore = new MMKV({
+    id: config.storeId
+  }); 
   
-}
+  return newStore
+};
+
+const checkState = (persistedStorage: MMKV) => {
+  let newState = undefined; 
+    
+  //deserailize the JSON string from MMKV 
+  const persistedStateJSON = persistedStorage.getString('state');
+
+  // check to see if anything is there, if so update initialState 
+  if (persistedStateJSON != null) {
+    let persistedState = JSON.parse(persistedStateJSON);
+      newState  = {...persistedState}
+    }
+
+  return newState
+};
+
+const updatePersistor = (state: {}, store: MMKV) => {
+     store.clearAll();
+     store.set('state',  JSON.stringify(state));
+};
