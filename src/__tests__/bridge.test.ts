@@ -1,4 +1,4 @@
-import { onStoreAction, registerStore } from '../bridge';
+import { onStoreAction, registerBridgeStore } from '../bridge';
 import { createStore } from '../store';
 
 describe('bridge', () => {
@@ -7,7 +7,7 @@ describe('bridge', () => {
     const subscription = jest.fn();
     sovran.subscribe(subscription);
 
-    registerStore({
+    registerBridgeStore({
       store: sovran,
       actions: {
         ADD_EVENT: (event: Event) => (state: { events: Event[] }) => ({

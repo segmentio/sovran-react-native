@@ -19,7 +19,8 @@
 #import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
 #import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
 
-#import "react_native_sovran-Swift.h"
+@import React;
+@import react_native_sovran;
 
 static void InitializeFlipper(UIApplication *application) {
   FlipperClient *client = [FlipperClient sharedClient];
@@ -52,7 +53,7 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   
-  [Sovran dispatchWithAction:@"onAction" payload:@"something"];
+  [Sovran dispatchWithAction:@"add-message" payload:@{ @"origin": @"Native", @"message": @"Hello from Objective-C!" }];
   return YES;
 }
 

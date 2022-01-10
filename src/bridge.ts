@@ -15,7 +15,9 @@ interface StoreAction<P, S> {
 
 const actionMap: { [key: string]: StoreAction<any, any>[] } = {};
 
-export const registerStore = <T = any>(...stores: BridgeStore<T>[]): void => {
+export const registerBridgeStore = <T = any>(
+  ...stores: BridgeStore<T>[]
+): void => {
   for (const store of stores) {
     for (const [key, actionCreator] of Object.entries(store.actions)) {
       if (!actionMap[key]) {
@@ -34,6 +36,7 @@ export const onStoreAction = async <T>(
   event: string,
   payload: T
 ): Promise<void> => {
+  console.log('onStoreAction', event, payload, actionMap);
   if (actionMap[event] !== undefined && actionMap[event].length > 0) {
     const actions = actionMap[event];
     for (const action of actions) {
