@@ -73,6 +73,7 @@ export interface StoreConfig {
   //id can't be optional
   storeId: string;
   persist?: boolean;
+  saveTimeout?: number;
 }
 
 export const createStore =  <T extends {}>(initialState: T, config: StoreConfig): Store<T> => {
@@ -95,7 +96,7 @@ export const createStore =  <T extends {}>(initialState: T, config: StoreConfig)
       state = newState;
       observable.notify(state);
       //if there is a new state, update storage 
-      updatePersistor(state, persistedStorage)
+      updatePersistor(state, persistedStorage, config);
     }
     return state;
   };
@@ -135,7 +136,14 @@ const checkState = (persistedStorage: MMKV) => {
   return newState
 };
 
-const updatePersistor = (state: {}, store: MMKV) => {
-     store.clearAll();
-     store.set('state',  JSON.stringify(state));
+const updatePersistor = (state: {}, store: MMKV, config: StoreConfig) => {
+  let saveTimeout; 
+
+  if(saveTimeout !== undefined) {
+    clearTimeout(saveTimeout);
+  }
+  saveTimeout = setTimeout(() => {
+    store.set('state',  JSON.stringify(state));
+    saveTimeout = undefined;
+  }, config.saveTimeout ?? 1000);
 };
