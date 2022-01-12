@@ -1,5 +1,5 @@
-import { MMKV } from 'react-native-mmkv'
-
+import { MMKV } from 'react-native-mmkv';
+const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000
 
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
@@ -70,22 +70,33 @@ export interface Store<T> {
  * @returns {Store<T>} object
  */
 
-export const createStore =  <T extends {}>(initialState: T, storeId: string): Store<T> => {
+export interface StoreConfig {
+  storeId?: string;
+  persist?: boolean;
+  saveTimeout?: number;
+}
+
+export const createStore =  <T extends {}>(initialState: T, config: StoreConfig): Store<T> => {
   let state = initialState;
+  const persistedStorage = createPersistedStorage(config);
+  let saveTimeout: ReturnType<typeof setTimeout> | undefined;
 
-  //creates new storage instance 
-  const persistedStorage = new MMKV({
-    id: storeId
-  }); 
-
-  //deserailize the JSON string from MMKV 
-  const persistedStateJSON = persistedStorage.getString('state');
-
-  // check to see if anything is there, if so update initialState 
-  if (persistedStateJSON != null) {
-    let persistedState = JSON.parse(persistedStateJSON);
-    state  = {...persistedState}
+  if (config.persist === true) {
+    const persistedStateJSON = persistedStorage.getString('state');
+    if(persistedStateJSON?.length) {
+      state = checkState(persistedStorage) ?? initialState;
+    }
   }
+
+  const updatePersistor = (state: T) => {
+    if (saveTimeout !== undefined) {
+      clearTimeout(saveTimeout);
+    }
+    saveTimeout = setTimeout(() => {
+      persistedStorage.set('state', JSON.stringify(state));
+      saveTimeout = undefined;
+    }, config.saveTimeout ?? DEFAULT_SAVE_STATE_DELAY_IN_MS);
+  };
 
   const observable = createObservable<T>();
 
@@ -95,8 +106,9 @@ export const createStore =  <T extends {}>(initialState: T, storeId: string): St
     if (newState !== state) {
       state = newState;
       observable.notify(state);
-      //if there is a new state, update storage 
-      updatePersistor(state, persistedStorage)
+      if (config.persist === true) {
+        updatePersistor(state);
+      }
     }
     return state;
   };
@@ -113,21 +125,20 @@ export const createStore =  <T extends {}>(initialState: T, storeId: string): St
   return { subscribe, dispatch, getState };
 };
 
-//since it's serialized, I'm not sure of a better way to check 
-//and replace state in storage other than comparing them, completely 
-//deleting the storage obj and rpelacing it with a new state. 
-const updatePersistor = (state: {}, store: MMKV) => {
-  const jsonState = store.getString('state');
-  let persistedState;
+const createPersistedStorage = (config: StoreConfig): MMKV => new MMKV({
+  id: config.storeId ?? 'default'
+});
 
-  if( jsonState != null) {
-    persistedState = JSON.parse(jsonState)
-  }
+const checkState = (persistedStorage: MMKV) => {
+  let newState = undefined; 
+    
+  //deserailize the JSON string from MMKV 
+  const persistedStateJSON = persistedStorage.getString('state');
 
-  if (persistedState && persistedState != state) {
-    let newState = {...persistedState, ...state};
-     store.clearAll();
-     store.set('state',  JSON.stringify(newState));
+  // check to see if anything is there, if so update initialState 
+  if (persistedStateJSON != null) {
+    let persistedState = JSON.parse(persistedStateJSON);
+    newState  = {...persistedState};
   }
-  
-}
+  return newState;
+};
