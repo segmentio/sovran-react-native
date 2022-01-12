@@ -1,3 +1,6 @@
+import { MMKV } from 'react-native-mmkv'
+
+
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
 
@@ -63,10 +66,27 @@ export interface Store<T> {
 /**
  * Creates a simple state store.
  * @param initialState initial store values
+ * @param storeId store instance id 
  * @returns {Store<T>} object
  */
-export const createStore = <T>(initialState: T): Store<T> => {
+
+export const createStore =  <T extends {}>(initialState: T, storeId: string): Store<T> => {
   let state = initialState;
+
+  //creates new storage instance 
+  const persistedStorage = new MMKV({
+    id: storeId
+  }); 
+
+  //deserailize the JSON string from MMKV 
+  const persistedStateJSON = persistedStorage.getString('state');
+
+  // check to see if anything is there, if so update initialState 
+  if (persistedStateJSON != null) {
+    let persistedState = JSON.parse(persistedStateJSON);
+    state  = {...persistedState}
+  }
+
   const observable = createObservable<T>();
 
   const dispatch = async (action: Action<T>) => {
@@ -75,6 +95,8 @@ export const createStore = <T>(initialState: T): Store<T> => {
     if (newState !== state) {
       state = newState;
       observable.notify(state);
+      //if there is a new state, update storage 
+      updatePersistor(state, persistedStorage)
     }
     return state;
   };
@@ -90,3 +112,22 @@ export const createStore = <T>(initialState: T): Store<T> => {
 
   return { subscribe, dispatch, getState };
 };
+
+//since it's serialized, I'm not sure of a better way to check 
+//and replace state in storage other than comparing them, completely 
+//deleting the storage obj and rpelacing it with a new state. 
+const updatePersistor = (state: {}, store: MMKV) => {
+  const jsonState = store.getString('state');
+  let persistedState;
+
+  if( jsonState != null) {
+    persistedState = JSON.parse(jsonState)
+  }
+
+  if (persistedState && persistedState != state) {
+    let newState = {...persistedState, ...state};
+     store.clearAll();
+     store.set('state',  JSON.stringify(newState));
+  }
+  
+}

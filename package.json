@@ -143,5 +143,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "react-native-mmkv-storage": "^0.6.6"
   }
 }
