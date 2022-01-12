@@ -7,8 +7,8 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-const Sovran = NativeModules.SovranInternal
-  ? NativeModules.SovranInternal
+const Sovran = NativeModules.Sovran
+  ? NativeModules.Sovran
   : new Proxy(
       {},
       {
@@ -19,14 +19,12 @@ const Sovran = NativeModules.SovranInternal
     );
 
 const SovranBridge = new NativeEventEmitter(Sovran);
+
+// Listen to Native events
 SovranBridge.addListener('onStoreAction', (event) => {
-  console.log('onStoreAction', event);
-  onStoreAction(event.event, event.payload);
+  console.log('onStoreAction listener', event);
+  onStoreAction(event.type, event.payload);
 });
 
-export function multiply(a: number, b: number): Promise<number> {
-  return Sovran.multiply(a, b);
-}
-
 export { createStore, Store } from './store';
-export { registerStore, onStoreAction as onEvent } from './bridge';
+export { registerBridgeStore } from './bridge';
