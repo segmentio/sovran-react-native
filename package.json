@@ -1,5 +1,5 @@
 {
-  "name": "react-native-sovran",
+  "name": "sovran-react-native",
   "version": "0.1.0",
   "description": "A cross-platform state management system",
   "main": "lib/commonjs/index",
@@ -13,7 +13,7 @@
     "android",
     "ios",
     "cpp",
-    "react-native-sovran.podspec",
+    "sovran-react-native.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",

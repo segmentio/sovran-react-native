@@ -121,7 +121,7 @@ Now you are ready to send updates from native code!
 ```objc
 
 @import React;
-@import react_native_sovran;
+@import sovran_react_native;
 
 // ...
 
@@ -133,7 +133,7 @@ Now you are ready to send updates from native code!
 (Supports both Java and Kotlin)
 
 ```java
-import com.reactnativesovran.Sovran;
+import com.sovranreactnative.Sovran;
 
 public class MainApplication extends Application implements ReactApplication {
 

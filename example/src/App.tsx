@@ -8,7 +8,7 @@ import {
   Button,
   SafeAreaView,
 } from 'react-native';
-import { createStore, registerBridgeStore } from 'react-native-sovran';
+import { createStore, registerBridgeStore } from 'sovran-react-native';
 
 interface Message {
   origin: string;

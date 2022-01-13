@@ -1,4 +1,4 @@
-package com.reactnativesovran
+package com.sovranreactnative
 
 import android.util.Log
 import com.facebook.react.ReactPackage
