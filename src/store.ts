@@ -1,5 +1,5 @@
 import { MMKV } from 'react-native-mmkv';
-const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000
+const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000;
 
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
@@ -41,7 +41,7 @@ const createObservable = <V>(): Observable<V> => {
 export type Action<T> = (state: T) => T | Promise<T>;
 
 /**
- * Interface for store
+ * Sovran State Store
  */
 export interface Store<T> {
   /**
@@ -66,25 +66,48 @@ export interface Store<T> {
 /**
  * Creates a simple state store.
  * @param initialState initial store values
- * @param storeId store instance id 
+ * @param storeId store instance id
  * @returns {Store<T>} object
  */
 
-export interface StoreConfig {
-  storeId?: string;
-  persist?: boolean;
-  saveTimeout?: number;
+interface PersistenceConfig {
+  /**
+   * Unique identifier for the store
+   */
+  storeId: string;
+  /**
+   * Delay in ms to wait before saving state
+   */
+  saveDelay?: number;
 }
 
-export const createStore =  <T extends {}>(initialState: T, config: StoreConfig): Store<T> => {
-  let state = initialState;
-  const persistedStorage = createPersistedStorage(config);
-  let saveTimeout: ReturnType<typeof setTimeout> | undefined;
+export interface StoreConfig {
+  /**
+   * Persistence configuration
+   */
+  persist?: PersistenceConfig;
+}
 
-  if (config.persist === true) {
+/**
+ * Creates a sovran state management store
+ * @param initialState initial state of the store
+ * @param config configuration options
+ * @returns Sovran Store object
+ */
+export const createStore = <T extends {}>(
+  initialState: T,
+  config?: StoreConfig
+): Store<T> => {
+  let state = initialState;
+  let isPersisted = config?.persist !== undefined;
+  let saveTimeout: ReturnType<typeof setTimeout> | undefined;
+  let persistedStorage: MMKV | undefined;
+
+  if (isPersisted) {
+    persistedStorage = createPersistedStorage(config.persist!);
     const persistedStateJSON = persistedStorage.getString('state');
-    if(persistedStateJSON?.length) {
-      state = checkState(persistedStorage) ?? initialState;
+    if (persistedStateJSON?.length) {
+      state = restoreState(persistedStorage) ?? initialState;
     }
   }
 
@@ -95,7 +118,7 @@ export const createStore =  <T extends {}>(initialState: T, config: StoreConfig)
     saveTimeout = setTimeout(() => {
       persistedStorage.set('state', JSON.stringify(state));
       saveTimeout = undefined;
-    }, config.saveTimeout ?? DEFAULT_SAVE_STATE_DELAY_IN_MS);
+    }, config.persist?.saveDelay ?? DEFAULT_SAVE_STATE_DELAY_IN_MS);
   };
 
   const observable = createObservable<T>();
@@ -106,7 +129,7 @@ export const createStore =  <T extends {}>(initialState: T, config: StoreConfig)
     if (newState !== state) {
       state = newState;
       observable.notify(state);
-      if (config.persist === true) {
+      if (isPersisted) {
         updatePersistor(state);
       }
     }
@@ -125,20 +148,26 @@ export const createStore =  <T extends {}>(initialState: T, config: StoreConfig)
   return { subscribe, dispatch, getState };
 };
 
-const createPersistedStorage = (config: StoreConfig): MMKV => new MMKV({
-  id: config.storeId ?? 'default'
-});
+/**
+ * Creates a persisted storage object for MMKV
+ * @param config configuration
+ * @returns MMKV object
+ */
+const createPersistedStorage = (config: PersistenceConfig): MMKV =>
+  new MMKV({
+    id: config.storeId,
+  });
 
-const checkState = (persistedStorage: MMKV) => {
-  let newState = undefined; 
-    
-  //deserailize the JSON string from MMKV 
+/**
+ * Restores state from the persisted storage
+ * @param persistedStorage MMKV object
+ * @returns State object or undefined if no state is in the storage
+ */
+const restoreState = <T>(persistedStorage: MMKV): T | undefined => {
   const persistedStateJSON = persistedStorage.getString('state');
 
-  // check to see if anything is there, if so update initialState 
-  if (persistedStateJSON != null) {
-    let persistedState = JSON.parse(persistedStateJSON);
-    newState  = {...persistedState};
+  if (persistedStateJSON !== null && persistedStateJSON !== undefined) {
+    return JSON.parse(persistedStateJSON);
   }
-  return newState;
+  return undefined;
 };
