@@ -20,7 +20,7 @@
 #import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
 
 @import React;
-@import react_native_sovran;
+@import sovran_react_native;
 
 static void InitializeFlipper(UIApplication *application) {
   FlipperClient *client = [FlipperClient sharedClient];

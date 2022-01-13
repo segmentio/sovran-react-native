@@ -36,7 +36,6 @@ export const onStoreAction = async <T>(
   event: string,
   payload: T
 ): Promise<void> => {
-  console.log('onStoreAction', event, payload, actionMap);
   if (actionMap[event] !== undefined && actionMap[event].length > 0) {
     const actions = actionMap[event];
     for (const action of actions) {
