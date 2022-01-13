@@ -18,11 +18,12 @@ const Sovran = NativeModules.Sovran
       }
     );
 
+const { ON_STORE_ACTION } = Sovran.getConstants();
+
 const SovranBridge = new NativeEventEmitter(Sovran);
 
 // Listen to Native events
-SovranBridge.addListener('onStoreAction', (event) => {
-  console.log('onStoreAction listener', event);
+SovranBridge.addListener(ON_STORE_ACTION, (event) => {
   onStoreAction(event.type, event.payload);
 });
 

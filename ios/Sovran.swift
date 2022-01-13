@@ -14,9 +14,15 @@ public class Sovran: RCTEventEmitter {
     
     private static var queue: [Action] = []
 
+    private static let onStoreActionEvent = "onStoreAction"
+
     @objc override init() {
         super.init()
         Sovran.emitter = self
+    }
+    
+    @objc public override func constantsToExport() -> [AnyHashable : Any]! {
+        return ["ON_STORE_ACTION": Sovran.onStoreActionEvent]
     }
 
     override public static func requiresMainQueueSetup() -> Bool {
@@ -24,12 +30,12 @@ public class Sovran: RCTEventEmitter {
     }
 
     @objc open override func supportedEvents() -> [String] {
-        ["onStoreAction"]
+        [Sovran.onStoreActionEvent]
     }
     
     private static func sendStoreAction(_ action: Action) -> Void {
         if let emitter = self.emitter {
-            emitter.sendEvent(withName: "onStoreAction", body: [
+            emitter.sendEvent(withName: onStoreActionEvent, body: [
                 "type": action.action,
                 "payload": action.payload
             ])

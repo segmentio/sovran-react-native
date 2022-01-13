@@ -21,7 +21,7 @@ class SovranModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
   }
 
   override fun getConstants() = mapOf(
-      "onStoreAction" to ON_STORE_ACTION
+      "ON_STORE_ACTION" to ON_STORE_ACTION
   )
 
   override fun initialize() {

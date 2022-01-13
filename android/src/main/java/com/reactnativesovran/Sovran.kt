@@ -18,7 +18,7 @@ class Sovran : ReactPackage {
     module = SovranModule(reactContext)
 
     module?.onInitialized = {
-      Log.v("SovranModule", "dispatch: $action isInitialized: $isInitialized")
+      Log.v("SovranModule", "onInitialized queue: ${queue.size}")
       isInitialized = true
       queue.forEach {
         module?.dispatch(it.type, it.payload)
