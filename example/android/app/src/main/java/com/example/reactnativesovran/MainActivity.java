@@ -1,4 +1,4 @@
-package com.example.reactnativesovran;
+package com.example.sovranreactnative;
 
 import com.facebook.react.ReactActivity;
 

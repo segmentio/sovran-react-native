@@ -15,7 +15,9 @@ interface StoreAction<P, S> {
 
 const actionMap: { [key: string]: StoreAction<any, any>[] } = {};
 
-export const registerStore = <T = any>(...stores: BridgeStore<T>[]): void => {
+export const registerBridgeStore = <T = any>(
+  ...stores: BridgeStore<T>[]
+): void => {
   for (const store of stores) {
     for (const [key, actionCreator] of Object.entries(store.actions)) {
       if (!actionMap[key]) {

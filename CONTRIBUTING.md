@@ -51,9 +51,9 @@ Remember to add tests for your change if possible. Run the unit tests by:
 yarn test
 ```
 
-To edit the Objective-C files, open `example/ios/SovranExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-sovran`.
+To edit the Objective-C files, open `example/ios/SovranExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > sovran-react-native`.
 
-To edit the Kotlin files, open `example/android` in Android studio and find the source files at `reactnativesovran` under `Android`.
+To edit the Kotlin files, open `example/android` in Android studio and find the source files at `sovranreactnative` under `Android`.
 
 ### Commit message convention
 
