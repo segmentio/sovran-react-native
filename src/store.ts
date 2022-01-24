@@ -1,3 +1,12 @@
+import {
+  AsyncStoragePersistor,
+  PersistenceConfig,
+  Persistor,
+} from './persistor';
+import merge from 'deepmerge';
+const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000;
+const DEFAULT_STORE_NAME = 'default';
+
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
 
@@ -38,7 +47,7 @@ const createObservable = <V>(): Observable<V> => {
 export type Action<T> = (state: T) => T | Promise<T>;
 
 /**
- * Interface for store
+ * Sovran State Store
  */
 export interface Store<T> {
   /**
@@ -63,10 +72,65 @@ export interface Store<T> {
 /**
  * Creates a simple state store.
  * @param initialState initial store values
+ * @param storeId store instance id
  * @returns {Store<T>} object
  */
-export const createStore = <T>(initialState: T): Store<T> => {
+
+export interface StoreConfig {
+  /**
+   * Persistence configuration
+   */
+  persist?: PersistenceConfig;
+}
+
+/**
+ * Creates a sovran state management store
+ * @param initialState initial state of the store
+ * @param config configuration options
+ * @returns Sovran Store object
+ */
+export const createStore = <T>(
+  initialState: T,
+  config?: StoreConfig
+): Store<T> => {
   let state = initialState;
+  let isPersisted = config?.persist !== undefined;
+  let saveTimeout: ReturnType<typeof setTimeout> | undefined;
+  let persistor: Persistor =
+    config?.persist?.persistor ?? AsyncStoragePersistor;
+  let storeId: string = isPersisted
+    ? config!.persist!.storeId
+    : DEFAULT_STORE_NAME;
+
+  if (isPersisted) {
+    persistor.get<T>(storeId).then((persistedState) => {
+      console.log('persistedState', persistedState);
+      if (
+        persistedState !== undefined &&
+        persistedState !== null &&
+        typeof persistedState === 'object'
+      ) {
+        dispatch((oldState) => {
+          return merge(oldState, persistedState);
+        });
+      }
+    });
+  }
+
+  const updatePersistor = (state: T) => {
+    if (config === undefined) {
+      return;
+    }
+
+    if (saveTimeout !== undefined) {
+      clearTimeout(saveTimeout);
+    }
+    saveTimeout = setTimeout(() => {
+      persistor.set(storeId, state);
+      saveTimeout = undefined;
+    }, config.persist?.saveDelay ?? DEFAULT_SAVE_STATE_DELAY_IN_MS);
+  };
+
   const observable = createObservable<T>();
 
   const dispatch = async (action: Action<T>) => {
@@ -75,6 +139,9 @@ export const createStore = <T>(initialState: T): Store<T> => {
     if (newState !== state) {
       state = newState;
       observable.notify(state);
+      if (isPersisted) {
+        updatePersistor(state);
+      }
     }
     return state;
   };

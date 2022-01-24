@@ -15,12 +15,27 @@ interface Message {
   message: string;
 }
 
+interface MessageQueue {
+  messages: Message[];
+}
+
 // Create the sovran store with our type and initial state
-const eventStore = createStore<Message[]>([]);
+const eventStore = createStore<MessageQueue>(
+  {
+    messages: [],
+  },
+  {
+    persist: {
+      storeId: 'events',
+      saveDelay: 500,
+    },
+  }
+);
 
 // Action to add new events
-const addMessage = (message: Message) => (state: Message[]) =>
-  [...state, message];
+const addMessage = (message: Message) => (state: MessageQueue) => ({
+  messages: [...state.messages, message],
+});
 
 // Register the store to listen to native events
 registerBridgeStore({
@@ -35,7 +50,9 @@ export default function App() {
 
   React.useEffect(() => {
     // Subscribe to new events coming in
-    const unsubscribe = eventStore.subscribe(setEvents);
+    const unsubscribe = eventStore.subscribe((queue) => {
+      setEvents(queue.messages);
+    });
     return () => {
       // Clean up the subscription when the event is removed
       unsubscribe();
