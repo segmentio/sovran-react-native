@@ -1,5 +1,11 @@
-import { MMKV } from 'react-native-mmkv';
+import {
+  AsyncStoragePersistor,
+  PersistenceConfig,
+  Persistor,
+} from './persistor';
+import merge from 'deepmerge';
 const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000;
+const DEFAULT_STORE_NAME = 'default';
 
 type Notify<V> = (value: V) => void;
 type Unsubscribe = () => void;
@@ -70,17 +76,6 @@ export interface Store<T> {
  * @returns {Store<T>} object
  */
 
-interface PersistenceConfig {
-  /**
-   * Unique identifier for the store
-   */
-  storeId: string;
-  /**
-   * Delay in ms to wait before saving state
-   */
-  saveDelay?: number;
-}
-
 export interface StoreConfig {
   /**
    * Persistence configuration
@@ -94,29 +89,44 @@ export interface StoreConfig {
  * @param config configuration options
  * @returns Sovran Store object
  */
-export const createStore = <T extends {}>(
+export const createStore = <T>(
   initialState: T,
   config?: StoreConfig
 ): Store<T> => {
   let state = initialState;
   let isPersisted = config?.persist !== undefined;
   let saveTimeout: ReturnType<typeof setTimeout> | undefined;
-  let persistedStorage: MMKV | undefined;
+  let persistor: Persistor =
+    config?.persist?.persistor ?? AsyncStoragePersistor;
+  let storeId: string = isPersisted
+    ? config!.persist!.storeId
+    : DEFAULT_STORE_NAME;
 
   if (isPersisted) {
-    persistedStorage = createPersistedStorage(config.persist!);
-    const persistedStateJSON = persistedStorage.getString('state');
-    if (persistedStateJSON?.length) {
-      state = restoreState(persistedStorage) ?? initialState;
-    }
+    persistor.get<T>(storeId).then((persistedState) => {
+      console.log('persistedState', persistedState);
+      if (
+        persistedState !== undefined &&
+        persistedState !== null &&
+        typeof persistedState === 'object'
+      ) {
+        dispatch((oldState) => {
+          return merge(oldState, persistedState);
+        });
+      }
+    });
   }
 
   const updatePersistor = (state: T) => {
+    if (config === undefined) {
+      return;
+    }
+
     if (saveTimeout !== undefined) {
       clearTimeout(saveTimeout);
     }
     saveTimeout = setTimeout(() => {
-      persistedStorage.set('state', JSON.stringify(state));
+      persistor.set(storeId, state);
       saveTimeout = undefined;
     }, config.persist?.saveDelay ?? DEFAULT_SAVE_STATE_DELAY_IN_MS);
   };
@@ -146,28 +156,4 @@ export const createStore = <T extends {}>(
   const getState = () => ({ ...state });
 
   return { subscribe, dispatch, getState };
-};
-
-/**
- * Creates a persisted storage object for MMKV
- * @param config configuration
- * @returns MMKV object
- */
-const createPersistedStorage = (config: PersistenceConfig): MMKV =>
-  new MMKV({
-    id: config.storeId,
-  });
-
-/**
- * Restores state from the persisted storage
- * @param persistedStorage MMKV object
- * @returns State object or undefined if no state is in the storage
- */
-const restoreState = <T>(persistedStorage: MMKV): T | undefined => {
-  const persistedStateJSON = persistedStorage.getString('state');
-
-  if (persistedStateJSON !== null && persistedStateJSON !== undefined) {
-    return JSON.parse(persistedStateJSON);
-  }
-  return undefined;
 };
