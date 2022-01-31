@@ -34,15 +34,19 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "segment"
   ],
-  "repository": "https://segment.com",
-  "author": "Oscar Bazaldua <oscar.bazaldua@outlook.com> (https://segment.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/sovran-react-native.git"
+  },
+  "author": "Segment <hello@segment.com> (https://segment.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://segment.com/issues"
+    "url": "https://github.com/segmentio/sovran-react-native/issues"
   },
-  "homepage": "https://segment.com#readme",
+  "homepage": "https://github.com/segmentio/sovran-react-native#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
