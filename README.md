@@ -10,7 +10,7 @@ The main advantages of Sovran vs Redux are:
 
 - Sovran is lightweight and simple to use. Subscribing and dispatching actions is easy to setup.
 - Sovran can manage state at different scope levels. From global to local to a single object.
-- Sovran is designed to be used with React Native so it supports dispatching actions throughout the bridge native -> RN
+- Sovran is designed to be used with React Native so it supports dispatching actions via the bridge native -> RN
 ## Installation
 
 ```sh
