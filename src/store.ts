@@ -7,8 +7,8 @@ import merge from 'deepmerge';
 const DEFAULT_SAVE_STATE_DELAY_IN_MS = 1000;
 const DEFAULT_STORE_NAME = 'default';
 
-type Notify<V> = (value: V) => void;
-type Unsubscribe = () => void;
+export type Notify<V> = (value: V) => void;
+export type Unsubscribe = () => void;
 
 /**
  * Generic observable store

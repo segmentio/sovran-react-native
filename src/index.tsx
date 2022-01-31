@@ -27,5 +27,5 @@ SovranBridge.addListener(ON_STORE_ACTION, (event) => {
   onStoreAction(event.type, event.payload);
 });
 
-export { createStore, Store } from './store';
+export { createStore, Store, Notify, Unsubscribe } from './store';
 export { registerBridgeStore } from './bridge';
