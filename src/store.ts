@@ -49,7 +49,7 @@ export type Action<T> = (state: T) => T | Promise<T>;
 /**
  * Sovran State Store
  */
-export interface Store<T> {
+export interface Store<T extends {}> {
   /**
    * Register a callback for changes to the store
    * @param {Notify<T>} callback - callback to be called when the store changes
@@ -61,7 +61,7 @@ export interface Store<T> {
    * @param {T | Promise<T>} action - action to dispatch
    * @returns {T} new state
    */
-  dispatch: (action: Action<T>) => Promise<T>;
+  dispatch: (action: Action<T>) => void;
   /**
    * Get the current state of the store
    * @returns {T} current state
@@ -89,11 +89,12 @@ export interface StoreConfig {
  * @param config configuration options
  * @returns Sovran Store object
  */
-export const createStore = <T>(
+export const createStore = <T extends {}>(
   initialState: T,
   config?: StoreConfig
 ): Store<T> => {
   let state = initialState;
+  let queue: Action<T>[] = [];
   let isPersisted = config?.persist !== undefined;
   let saveTimeout: ReturnType<typeof setTimeout> | undefined;
   let persistor: Persistor =
@@ -104,7 +105,6 @@ export const createStore = <T>(
 
   if (isPersisted) {
     persistor.get<T>(storeId).then((persistedState) => {
-      console.log('persistedState', persistedState);
       if (
         persistedState !== undefined &&
         persistedState !== null &&
@@ -132,19 +132,40 @@ export const createStore = <T>(
   };
 
   const observable = createObservable<T>();
+  const queueObserve = createObservable<typeof queue>();
+
+  const getState = () => ({ ...state });
 
   const dispatch = async (action: Action<T>) => {
-    const newState = await action(state);
+    queue.push(action);
+    queueObserve.notify(queue);
+  };
 
-    if (newState !== state) {
-      state = newState;
-      observable.notify(state);
-      if (isPersisted) {
-        updatePersistor(state);
+  const processQueue = async () => {
+    queueObserve.unsubscribe(processQueue);
+    while (queue.length > 0) {
+      const action = queue.shift();
+      try {
+        if (action !== undefined) {
+          const newState = await action(state);
+          if (newState !== state) {
+            state = newState;
+            // TODO: Debounce notifications
+            observable.notify(state);
+            if (isPersisted) {
+              updatePersistor(state);
+            }
+          }
+        }
+      } catch {
+        console.warn('Promise not handled correctly');
       }
     }
+    queueObserve.subscribe(processQueue);
     return state;
   };
+
+  queueObserve.subscribe(processQueue);
 
   const subscribe = (callback: Notify<T>) => {
     const unsubscribe = observable.subscribe(callback);
@@ -152,8 +173,6 @@ export const createStore = <T>(
       unsubscribe();
     };
   };
-
-  const getState = () => ({ ...state });
 
   return { subscribe, dispatch, getState };
 };

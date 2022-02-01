@@ -94,4 +94,26 @@ describe('Sovran', () => {
 
     expect(sovran.getState()).toEqual(expectedState);
   });
+
+  it('should work with multiple events sent', async () => {
+    const sovran = createStore<{ events: Event[] }>({ events: [] });
+    const n = 100;
+
+    for (let i = 0; i < n; i++) {
+      const sampleEvent: Event = {
+        id: i.toString(),
+        description: `test ${i}`,
+      };
+      sovran.dispatch((state) => {
+        return {
+          events: [...state.events, sampleEvent],
+        };
+      });
+    }
+
+    // Wait for all promises to resolve
+    await new Promise(process.nextTick);
+
+    expect(sovran.getState().events.length).toEqual(n);
+  });
 });

@@ -1,6 +1,6 @@
 {
-  "name": "sovran-react-native",
-  "version": "0.1.0",
+  "name": "@segment/sovran-react-native",
+  "version": "0.1.1",
   "description": "A cross-platform state management system",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
