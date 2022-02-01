@@ -22,7 +22,7 @@ npm install @segment/sovran-react-native
 To use in JS/TS you just need to use `createStore` to create a sovran object.
 
 ```ts
-import { createStore } from 'sovran-react-native';
+import { createStore } from '@segment/sovran-react-native';
 
 interface State {
   count: number;
@@ -86,7 +86,7 @@ Sovran supports dispatching actions from native to RN. Very useful for brownfiel
 To use this feature you first need to register which stores will listen to native updates and which actions can be sent from native:
 
 ```ts
-import { createStore, registerBridgeStore } from 'sovran-react-native';
+import { createStore, registerBridgeStore } from '@segment/sovran-react-native';
 
 interface MessageQueue {
   messages: string[];
