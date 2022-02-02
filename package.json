@@ -34,21 +34,21 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "segment"
   ],
-  "repository": "https://segment.com",
-  "author": "Oscar Bazaldua <oscar.bazaldua@outlook.com> (https://segment.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/sovran-react-native.git"
+  },
+  "author": "Segment <hello@segment.com> (https://segment.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://segment.com/issues"
+    "url": "https://github.com/segmentio/sovran-react-native/issues"
   },
-  "homepage": "https://segment.com#readme",
+  "homepage": "https://github.com/segmentio/sovran-react-native#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  },
-  "dependencies": {
-    "react": "17.0.2",
-    "react-native": "0.66.3"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",
@@ -145,6 +145,8 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.15",
-    "deepmerge": "^4.2.2"
+    "deepmerge": "^4.2.2",
+    "react": "^17.0.2",
+    "react-native": "^0.66.0"
   }
 }
