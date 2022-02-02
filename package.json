@@ -46,6 +46,10 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {
+    "react": "17.0.2",
+    "react-native": "0.66.3"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
@@ -62,15 +66,9 @@
     "jest": "^27.4.3",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
-    "react": "17.0.2",
-    "react-native": "0.66.3",
     "react-native-builder-bob": "^0.18.0",
     "release-it": "^14.2.2",
     "typescript": "^4.5.2"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
   },
   "jest": {
     "preset": "react-native",
