@@ -156,6 +156,13 @@
     "@react-native-async-storage/async-storage": "^1.15.15",
     "deepmerge": "^4.2.2",
     "react": "^17.0.2",
-    "react-native": "^0.66.0"
+    "react-native": "^0.66.0",
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
+  },
+  "resolutions": {
+    "react-native": "0.67.2",
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
   }
 }
