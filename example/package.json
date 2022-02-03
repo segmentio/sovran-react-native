@@ -6,7 +6,9 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "clean": "rimraf node_modules & yarn clean:ios",
+    "clean:ios": "rimraf ios/build ios/Pods"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.15",
@@ -17,6 +19,7 @@
     "@babel/core": "^7.12.10",
     "@babel/runtime": "^7.12.5",
     "babel-plugin-module-resolver": "^4.0.0",
-    "metro-react-native-babel-preset": "^0.64.0"
+    "metro-react-native-babel-preset": "^0.64.0",
+    "rimraf": "^3.0.2"
   }
 }
