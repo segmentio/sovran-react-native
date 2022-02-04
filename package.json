@@ -29,7 +29,8 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "clean": "rimraf lib node_modules"
   },
   "keywords": [
     "react-native",
@@ -69,6 +70,7 @@
     "prettier": "^2.0.5",
     "react-native-builder-bob": "^0.18.0",
     "release-it": "^14.2.2",
+    "rimraf": "^3.0.2",
     "typescript": "^4.5.2"
   },
   "jest": {
@@ -144,10 +146,23 @@
       ]
     ]
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "yarn lint && yarn typescript && yarn test"
+    }
+  },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.15",
     "deepmerge": "^4.2.2",
     "react": "^17.0.2",
-    "react-native": "^0.66.0"
+    "react-native": "^0.66.0",
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
+  },
+  "resolutions": {
+    "react-native": "0.67.2",
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
   }
 }

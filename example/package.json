@@ -6,17 +6,26 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "clean": "rimraf node_modules & yarn clean:ios",
+    "clean:ios": "rimraf ios/build ios/Pods"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.15",
     "react": "16.13.1",
-    "react-native": "0.67.0"
+    "react-native": "0.67.2",
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
+  },
+  "resolutions": {
+    "shell-quote": "1.7.3",
+    "ansi-regex": "5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/runtime": "^7.12.5",
     "babel-plugin-module-resolver": "^4.0.0",
-    "metro-react-native-babel-preset": "^0.64.0"
+    "metro-react-native-babel-preset": "^0.64.0",
+    "rimraf": "^3.0.2"
   }
 }
