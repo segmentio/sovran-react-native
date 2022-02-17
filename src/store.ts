@@ -113,6 +113,8 @@ export const createStore = <T extends {}>(
         dispatch((oldState) => {
           return merge(oldState, persistedState);
         });
+      } else {
+        persistor.set(storeId, getState());
       }
     });
   }

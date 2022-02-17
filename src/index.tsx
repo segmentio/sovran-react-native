@@ -29,3 +29,4 @@ SovranBridge.addListener(ON_STORE_ACTION, (event) => {
 
 export { createStore, Store, Notify, Unsubscribe } from './store';
 export { registerBridgeStore } from './bridge';
+export * from './persistor';
