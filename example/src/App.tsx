@@ -82,6 +82,14 @@ export default function App() {
             )
           }
         />
+        <Button
+          title="Clear"
+          onPress={() =>
+            eventStore.dispatch((state: MessageQueue) => ({
+              messages: [],
+            }))
+          }
+        />
       </View>
     </SafeAreaView>
   );
