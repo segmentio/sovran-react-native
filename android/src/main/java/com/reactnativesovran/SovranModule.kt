@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.facebook.react.module.annotations.ReactModule;
 
 @ReactModule(name="Sovran")
 class SovranModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
