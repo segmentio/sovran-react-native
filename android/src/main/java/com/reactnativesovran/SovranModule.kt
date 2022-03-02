@@ -8,6 +8,7 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
+@ReactModule(name="Sovran")
 class SovranModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
   var onInitialized: () -> Unit = {}; 
