@@ -85,7 +85,7 @@ export default function App() {
         <Button
           title="Clear"
           onPress={() =>
-            eventStore.dispatch((state: MessageQueue) => ({
+            eventStore.dispatch((_: MessageQueue) => ({
               messages: [],
             }))
           }
