@@ -61,7 +61,7 @@ export interface Store<T extends {}> {
    * @param {T | Promise<T>} action - action to dispatch
    * @returns {T} new state
    */
-  dispatch: (action: Action<T>) => void;
+  dispatch: (action: Action<T>) => Promise<T>;
   /**
    * Get the current state of the store
    * @returns {T} current state
@@ -94,7 +94,7 @@ export const createStore = <T extends {}>(
   config?: StoreConfig
 ): Store<T> => {
   let state = initialState;
-  let queue: Action<T>[] = [];
+  let queue: { call: Action<T>; finally: (newState: T) => void }[] = [];
   let isPersisted = config?.persist !== undefined;
   let saveTimeout: ReturnType<typeof setTimeout> | undefined;
   let persistor: Persistor =
@@ -104,17 +104,20 @@ export const createStore = <T extends {}>(
     : DEFAULT_STORE_NAME;
 
   if (isPersisted) {
-    persistor.get<T>(storeId).then((persistedState) => {
+    persistor.get<T>(storeId).then(async (persistedState) => {
       if (
         persistedState !== undefined &&
         persistedState !== null &&
         typeof persistedState === 'object'
       ) {
-        dispatch((oldState) => {
+        const restoredState = await dispatch((oldState) => {
           return merge(oldState, persistedState);
         });
+        config?.persist?.onInitialized?.(restoredState);
       } else {
-        persistor.set(storeId, getState());
+        const stateToSave = getState();
+        persistor.set(storeId, stateToSave);
+        config?.persist?.onInitialized?.(stateToSave);
       }
     });
   }
@@ -138,18 +141,23 @@ export const createStore = <T extends {}>(
 
   const getState = () => ({ ...state });
 
-  const dispatch = async (action: Action<T>) => {
-    queue.push(action);
-    queueObserve.notify(queue);
+  const dispatch = async (action: Action<T>): Promise<T> => {
+    return new Promise<T>((resolve) => {
+      queue.push({
+        call: action,
+        finally: resolve,
+      });
+      queueObserve.notify(queue);
+    });
   };
 
-  const processQueue = async () => {
+  const processQueue = async (): Promise<T> => {
     queueObserve.unsubscribe(processQueue);
     while (queue.length > 0) {
       const action = queue.shift();
       try {
         if (action !== undefined) {
-          const newState = await action(state);
+          const newState = await action.call(state);
           if (newState !== state) {
             state = newState;
             // TODO: Debounce notifications
@@ -161,6 +169,8 @@ export const createStore = <T extends {}>(
         }
       } catch {
         console.warn('Promise not handled correctly');
+      } finally {
+        action?.finally(state);
       }
     }
     queueObserve.subscribe(processQueue);

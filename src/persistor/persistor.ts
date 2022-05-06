@@ -11,6 +11,10 @@ export interface PersistenceConfig {
    * Persistor
    */
   persistor?: Persistor;
+  /**
+   * Callback to be called when the store is initialized
+   */
+  onInitialized?: (state: any) => void;
 }
 
 export interface Persistor {
