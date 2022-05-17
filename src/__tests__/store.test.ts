@@ -210,6 +210,51 @@ describe('Sovran', () => {
     expect(sovran.getState()).toEqual(expectedState);
   });
 
+  it('should support listeners calling unsubscribe from their handling code', async () => {
+    // Create a new store
+    const sovran = createStore<EventStore>({ events: [] });
+
+    // Setup a couple of subscriptions
+    const onlyOnceSubscription = jest.fn();
+    const unsubscribe = sovran.subscribe(
+      onlyOnceSubscription.mockImplementation(() => {
+        unsubscribe();
+      })
+    );
+    const anotherSubscription = jest.fn();
+    sovran.subscribe(anotherSubscription);
+
+    // Dispatch an action to add a new event in our store
+    await sovran.dispatch((state) => {
+      return {
+        events: [
+          ...state.events,
+          {
+            id: '1',
+            description: 'test',
+          },
+        ],
+      };
+    });
+
+    // Now send another event
+    await sovran.dispatch((state) => {
+      return {
+        events: [
+          ...state.events,
+          {
+            id: '2',
+            description: 'test',
+          },
+        ],
+      };
+    });
+
+    // The once subscription should have been called only once, the other one every update
+    expect(onlyOnceSubscription).toHaveBeenCalledTimes(1);
+    expect(anotherSubscription).toHaveBeenCalledTimes(2);
+  });
+
   /**
    * Tests the persistence calls of the Store to comply to the interface
    */

@@ -38,7 +38,9 @@ const createObservable = <V>(): Observable<V> => {
   };
 
   const notify = (value: V) => {
-    callbacks.forEach((callback) => callback(value));
+    for (const callback of [...callbacks]) {
+      callback(value);
+    }
   };
 
   return { subscribe, unsubscribe, notify };
