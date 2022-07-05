@@ -64,7 +64,7 @@ export default function App() {
       <View style={styles.container}>
         <FlatList
           data={events}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(_item, index) => index.toString()}
           renderItem={({ item }) => (
             <Text style={styles.item}>
               {item.origin}:{item.message}
