@@ -4,7 +4,7 @@ type ActionCreator<P, S> = (payload: P) => Action<S>;
 
 interface BridgeStore<T> {
   store: Store<T>;
-  actions: { [key: string]: ActionCreator<any, T> };
+  actions: Record<string, ActionCreator<any, T>>;
 }
 
 interface StoreAction<P, S> {
@@ -13,7 +13,7 @@ interface StoreAction<P, S> {
   actionCreator: ActionCreator<P, S>;
 }
 
-const actionMap: { [key: string]: StoreAction<any, any>[] } = {};
+const actionMap: Record<string, StoreAction<any, any>[]> = {};
 
 export const registerBridgeStore = <T = any>(
   ...stores: BridgeStore<T>[]
