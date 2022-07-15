@@ -374,4 +374,27 @@ describe('Sovran', () => {
       expect(mockPesistor.set).toHaveBeenCalledWith(ID, initialState);
     });
   });
+
+  describe('Concurrency', () => {
+    it('handles concurrent writes and reads with the safe option', async () => {
+      const sovran = createStore<EventStore>({ events: [] });
+
+      const p1 = sovran.dispatch(() => {
+        return {
+          events: [
+            {
+              id: '1',
+              description: 'test',
+            },
+          ],
+        };
+      });
+
+      const p2 = sovran.getState(true);
+
+      await Promise.all([p1, p2]).then(([s1, s2]) => {
+        expect(s1).toEqual(s2);
+      });
+    });
+  });
 });
