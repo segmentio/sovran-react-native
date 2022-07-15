@@ -48,6 +48,12 @@ const createObservable = <V>(): Observable<V> => {
 
 export type Action<T> = (state: T) => T | Promise<T>;
 
+// Type for the getState function, it is written as an interface to support overloading
+interface getStateFunc<T> {
+  (): T;
+  (safe: true): Promise<T>;
+}
+
 /**
  * Sovran State Store
  */
@@ -66,9 +72,10 @@ export interface Store<T extends {}> {
   dispatch: (action: Action<T>) => Promise<T>;
   /**
    * Get the current state of the store
-   * @returns {T} current state
+   * @param {boolean} safe - if true it will execute the get async in the queue of the reducers guaranteeing that all the actions are executed before retrieving state
+   * @returns {T | Promise<T>} state, or a promise for the state if executed async in the queue
    */
-  getState: () => T;
+  getState: getStateFunc<T>;
 }
 
 /**
@@ -91,12 +98,12 @@ export interface StoreConfig {
  * @param config configuration options
  * @returns Sovran Store object
  */
-export const createStore = <T extends {}>(
+export const createStore = <T>(
   initialState: T,
   config?: StoreConfig
 ): Store<T> => {
   let state = initialState;
-  let queue: { call: Action<T>; finally: (newState: T) => void }[] = [];
+  let queue: { call: Action<T>; finally?: (newState: T) => void }[] = [];
   let isPersisted = config?.persist !== undefined;
   let saveTimeout: ReturnType<typeof setTimeout> | undefined;
   let persistor: Persistor =
@@ -141,7 +148,19 @@ export const createStore = <T extends {}>(
   const observable = createObservable<T>();
   const queueObserve = createObservable<typeof queue>();
 
-  const getState = () => ({ ...state });
+  function getState(): T;
+  function getState(safe: true): Promise<T>;
+  function getState(safe?: boolean): T | Promise<T> {
+    if (!safe) return { ...state } as T;
+    return new Promise<T>((resolve) => {
+      queue.push({
+        call: (state) => {
+          resolve(state);
+          return state;
+        },
+      });
+    });
+  }
 
   const dispatch = async (action: Action<T>): Promise<T> => {
     return new Promise<T>((resolve) => {
@@ -172,7 +191,7 @@ export const createStore = <T extends {}>(
       } catch {
         console.warn('Promise not handled correctly');
       } finally {
-        action?.finally(state);
+        action?.finally?.(state);
       }
     }
     queueObserve.subscribe(processQueue);
@@ -188,5 +207,9 @@ export const createStore = <T extends {}>(
     };
   };
 
-  return { subscribe, dispatch, getState };
+  return {
+    subscribe,
+    dispatch,
+    getState,
+  };
 };
