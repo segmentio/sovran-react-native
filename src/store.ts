@@ -159,6 +159,7 @@ export const createStore = <T>(
           return state;
         },
       });
+      queueObserve.notify(queue);
     });
   }
 
