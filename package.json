@@ -1,6 +1,6 @@
 {
   "name": "@segment/sovran-react-native",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "description": "A cross-platform state management system",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -19,7 +19,9 @@
     "!ios/build",
     "!**/__tests__",
     "!**/__fixtures__",
-    "!**/__mocks__"
+    "!**/__mocks__",
+    "!android/.gradle",
+    "!android/.idea"
   ],
   "scripts": {
     "test": "jest",
