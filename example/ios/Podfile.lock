@@ -341,7 +341,7 @@ PODS:
   - RNCAsyncStorage (1.15.17):
     - React-Core
   - SocketRocket (0.6.0)
-  - sovran-react-native (0.4.1):
+  - sovran-react-native (0.4.2):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -534,7 +534,7 @@ SPEC CHECKSUMS:
   ReactCommon: d98c6c96b567f9b3a15f9fd4cc302c1eda8e3cf2
   RNCAsyncStorage: 6bd5a7ba3dde1c3facba418aa273f449bdc5437a
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
-  sovran-react-native: c53ef725f60d5c734aa446419e10e6d673690aae
+  sovran-react-native: d63e96982806633d6ee312ca61bf4f56b78c809a
   Yoga: 9b6696970c3289e8dea34b3eda93f23e61fb8121
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
