@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
     'SWIFT_COMPILATION_MODE' => 'wholemodule',
   }
   s.user_target_xcconfig = {
-    "HEADER_SEARCH_PATHS" => "\"${PODS_CONFIGURATION_BUILD_DIR}/segment-analytics-react-native/Swift Compatibility Header\"",
+    "HEADER_SEARCH_PATHS" => "\"${PODS_CONFIGURATION_BUILD_DIR}/sovran-react-native/Swift Compatibility Header\"",
   }
   
   s.dependency "React-Core"
