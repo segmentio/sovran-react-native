@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
-  s.header_dir     = 'segment-analytics-react-native'
+  s.header_dir     = 'sovran-react-native'
 
   s.static_framework = true
 
