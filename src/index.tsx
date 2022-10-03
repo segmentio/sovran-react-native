@@ -7,26 +7,19 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-const Sovran = NativeModules.Sovran
-  ? NativeModules.Sovran
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+const Sovran = NativeModules.Sovran;
+if (Sovran) {
+  const { ON_STORE_ACTION } = Sovran.getConstants();
 
-const { ON_STORE_ACTION } = Sovran.getConstants();
+  const SovranBridge = new NativeEventEmitter(Sovran);
 
-const SovranBridge = new NativeEventEmitter(Sovran);
-
-// Listen to Native events
-SovranBridge.addListener(ON_STORE_ACTION, (event) => {
-  onStoreAction(event.type, event.payload);
-});
-
+  // Listen to Native events
+  SovranBridge.addListener(ON_STORE_ACTION, (event) => {
+    onStoreAction(event.type, event.payload);
+  });
+} else {
+  console.warn(LINKING_ERROR);
+}
 export { createStore, Store, Notify, Unsubscribe } from './store';
 export { registerBridgeStore } from './bridge';
 export * from './persistor';
