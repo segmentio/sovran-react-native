@@ -1,3 +1,7 @@
+> **Warning**
+> This repository is now merged into the monorepo of [analytics-react-native](https://github.com/segmentio/analytics-react-native/tree/master/packages/sovran). For any issues or questions go [here](https://github.com/segmentio/analytics-react-native/issues).
+> The `@segment/sovran-react-native` NPM package will still be published and maintained, no changes are expected code wise.
+
 # @segment/sovran-react-native
 
 A cross-platform lightweight local state management system designed for React Native.
